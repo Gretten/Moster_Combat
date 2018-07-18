@@ -25,68 +25,80 @@ var troll = Created.creature({
 var undead = Created.creature({ 
   name:       'Ar-Kelef',
   type:       'mage',
-  text:       ' выпускает смертоносное заклинание',
+  text:       ' выпускает сгусток льда',
   hp:         65, 
-  attack:     12   
+  attack:     15   
 });  
 
 var human = Created.creature({ 
-  name:       'Vollha',
+  name:       'Guldan',
   type:       'warlock',
-  text:       ' насылает проклятие',
-  hp:         43, 
-  attack:     21 
+  text:       ' насылает проклятие',   
+  hp:         43,      
+  attack:     21  
 }); 
 
-var human_2 = Created.creature({ 
-  name:       'Henit',
+var human_2 = Created.creature({  
+  name:       'Sinistria',
   type:       'priest',
-  text:       ' воззывает к Забытой Тени',
-  hp:         85, 
-  attack:     10 
+  text:       ' накладывает слово Тьмы',
+  hp:         85,      
+  attack:     10      
 });    
 
-function randomAttack(min, max) { 
+function random(min, max) { 
     var rand = min - 0.5 + Math.random() * (max - min + 1)
     rand = Math.round(rand); 
     return rand;
-}
-  
-function duel(firstCreature, secondCreature) {
-     
-var firstCreatureHealth     = firstCreature.hp; 
-var secondCreatureHealth    = secondCreature.hp;
-var firstCreatureAttack     = firstCreature.attack; 
-var secondCreatureAttack    = secondCreature.attack;
+}   
+
+function starterDamage(className) {     
+  className = className.type;
+  return (className == 'barbarian') ? 4 : (className == 'priest') ? 2 : 0;
+} 
+
+function criticals(counter, attack) { 
+  var count = counter(1, 10);
+  return (count < 2) ? attack / 0.5 : (count > 8) ? attack * 5 : attack;
+}      
+       
+function duel(firstCreature, secondCreature) { 
+         
+ var firstCreatureHealth         = firstCreature.hp,     
+     secondCreatureHealth        = secondCreature.hp,  
+     firstCreatureAttack         = firstCreature.attack,
+     secondCreatureAttack        = secondCreature.attack,
+     firstStarterDamage          = starterDamage(firstCreature),
+     secondStarterDamage         = starterDamage(secondCreature);  
  
-  for(var i = 0; ; i++ ) { 
-
-    var currentAttackOfFirst  = randomAttack(0, firstCreatureAttack); 
-    var currentAttackOfSecond = randomAttack(0, secondCreatureAttack);
-
-    firstCreatureHealth -= currentAttackOfSecond;    
-    if(currentAttackOfSecond == 0) {
+  while(true) { 
+    
+ var currentAttackOfFirst        = random(firstStarterDamage, firstCreatureAttack),
+     currentAttackOfSecond       = random(secondStarterDamage, secondCreatureAttack),
+     currentWithCriticalsFirst   = criticals(random, currentAttackOfFirst),
+     currentWithCriticalsSecond  = criticals(random, currentAttackOfSecond);
+    
+    firstCreatureHealth -= currentWithCriticalsSecond;      
+    if(secondCreatureHealth <= 0) {             
+      console.log(secondCreature.name + ' получает смертельную рану и погибает!'); 
+      break;   
+    } else if (currentWithCriticalsSecond == 0) {
       console.log(secondCreature.name + secondCreature.text + ', но промахивается.');
     } else {
-     console.log(secondCreature.name + secondCreature.text + ' и наносит ' + currentAttackOfSecond + ' урона!');  
+     console.log(secondCreature.name + secondCreature.text + ' и наносит ' + currentWithCriticalsSecond + ' урона!');      
     }
       
-    secondCreatureHealth -= currentAttackOfFirst;
-    if(currentAttackOfFirst == 0) {
+    secondCreatureHealth -= currentWithCriticalsFirst; 
+    if(firstCreatureHealth <= 0) {    
+      console.log(firstCreature.name + ' получает смертельную рану и погибает!');
+      break;  
+    } else if (currentWithCriticalsFirst == 0) {
       console.log(firstCreature.name + firstCreature.text + ', но промахивается.');
     } else {
-     console.log(firstCreature.name + firstCreature.text + ' и наносит ' + currentAttackOfFirst + ' урона!'); 
-    }
-
-    if(firstCreatureHealth <= 0) {    
-      console.log(firstCreature.name + ' побежден!');
-      break; 
-    } else if(secondCreatureHealth <= 0) {             
-      console.log(secondCreature.name + ' побежден!');
-      break;   
-    }  
+     console.log(firstCreature.name + firstCreature.text + ' и наносит ' + currentWithCriticalsFirst + ' урона!'); 
+    }   
   }    
-}  
-
-duel(human, human_2)         
-      
+}   
+ 
+duel(undead, troll)          
+        
