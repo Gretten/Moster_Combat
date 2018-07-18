@@ -48,7 +48,7 @@ var human_2 = Created.creature({
 
 function random(min, max) { 
     var rand = min - 0.5 + Math.random() * (max - min + 1)
-    rand = Math.round(rand); 
+    rand = Math.round(rand);  
     return rand;
 }   
 
